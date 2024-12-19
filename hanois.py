@@ -1,5 +1,10 @@
-from larreaUtils import stringReplaceIndex
-
+def stringReplaceIndex(string,index,new_char) -> str:
+    string_list = list(string)
+    string_list[index] = new_char
+    new_string = "".join(string_list)
+    
+    return new_string
+#Esta función se utiliza para pintar el PaintHanoi.
 
 class HanoiMovement:
     def __init__(
@@ -181,9 +186,13 @@ class HanoiGame:
         
 
     def getRandomHanoiSolutionArray(self) -> list[HanoiMovement]:
-        print("Utiliza esta función en conjunto con processSolution()")
+        #print("Utiliza esta función en conjunto con processSolution()")
         instructions: list[HanoiMovement] = []
         
+        #Bug: Random solver se rompe si el disco mas grande no comienza en la torre destino.
+        tow = self.findDisk(disk=self.discs)
+        self.target_tower = tow
+        #solucion: reescribir el destino a donde se encuentre el mayor disco.
         
         while self.checkSolved() == False:
             # step 1: find the largest continuous stack starting with 1
