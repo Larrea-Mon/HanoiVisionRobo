@@ -21,7 +21,7 @@ class HanoiMovement:
         self.target_disc_height: int = target_disc_height
         self.disc_size: int = disc_size
     def getMatrix(self)-> list[int]:
-        return [self.source_tower,self.target_tower,self.source_disc_height,self.target_disc_height,self.disc_size]
+        return [self.source_tower,self.target_tower,self.source_disc_height,0,self.disc_size]
     def __str__(self):
         return f"Source:{self.source_tower}, Target:{self.target_tower}, S-Heigth:{self.source_disc_height} disc_size:{self.disc_size}"
 
@@ -192,7 +192,13 @@ class HanoiGame:
         #Bug: Random solver se rompe si el disco mas grande no comienza en la torre destino.
         tow = self.findDisk(disk=self.discs)
         self.target_tower = tow
-        #solucion: reescribir el destino a donde se encuentre el mayor disco.
+        #solucion: reescribir el destino a donde se encuentre el mayor disco.        
+        
+        #Bug: Si está resuelto de base, con 0 movimientos, no hay nada que limpiar:
+        if(self.checkSolved() == True):
+            print("Está resuelto de base")
+            return instructions
+        #solucion: if -> return y un print y que no vuelva a pasar    
         
         while self.checkSolved() == False:
             # step 1: find the largest continuous stack starting with 1
@@ -223,7 +229,8 @@ class HanoiGame:
                 
         print(f"Steps Before Optimization:{len(instructions)}")  
 ##
-        def CleanRandomInstructions(instructions: list[HanoiMovement]):        
+        def CleanRandomInstructions(instructions: list[HanoiMovement]):   
+            
             result:list[HanoiMovement] = []
             memory: HanoiMovement = instructions[0]
             for ins in range(1,len(instructions)):
