@@ -1,4 +1,4 @@
-def stringReplaceIndex(string,index,new_char) -> str:
+def stringReplaceIndex(string,index,new_char):
     string_list = list(string)
     string_list[index] = new_char
     new_string = "".join(string_list)
@@ -20,7 +20,7 @@ class HanoiMovement:
         self.source_disc_height: int = source_disc_height
         self.target_disc_height: int = target_disc_height
         self.disc_size: int = disc_size
-    def getMatrix(self)-> list[int]:
+    def getMatrix(self):
         return [self.source_tower,self.target_tower,self.source_disc_height,0,self.disc_size]
     def __str__(self):
         return f"Source:{self.source_tower}, Target:{self.target_tower}, S-Heigth:{self.source_disc_height} disc_size:{self.disc_size}"
@@ -34,7 +34,7 @@ class HanoiTower:
         return f"{self.discs}"
 
     """
-    def getTopOfTower(self) -> list[int]:
+    def getTopOfTower(self):
 
         for i in range(0, len(self.discs)):
             if self.discs[i] != 0:
@@ -43,7 +43,7 @@ class HanoiTower:
         return [self.discs[-1], len(self.discs)]
     """
 
-    def getTopOfTower(self) -> dict:
+    def getTopOfTower(self):
         result: dict = {"size": 0, "position": 0}
         for i in range(0, len(self.discs)):
             if self.discs[i] != 0:
@@ -55,14 +55,14 @@ class HanoiTower:
         result["position"] = len(self.discs)
         return result
 
-    def popTopOfTower(self) -> int:
+    def popTopOfTower(self):
         top: dict = self.getTopOfTower()
         result: int = top["size"]
         position: int = top["position"]
         self.discs[position] = 0
         return result
 
-    def placeOnTopOfTower(self, disc: int) -> None:
+    def placeOnTopOfTower(self, disc: int):
         top: dict = self.getTopOfTower()
         # print(f'top:{top}, discs:{self.discs}')
         if (disc < top["size"]) or (top["size"] == 0):
@@ -106,13 +106,13 @@ class HanoiGame:
             pass
 
     def __str__(self):
-        result = f"[HANOI] \nTowers:{len(self.towers)}\nDiscs:{self.discs}\nTarget_tower:{self.target_tower}\n"
+        result = f"[HANOI] \nTowers:{len(self.towers)}\nDiscs:{self.discs}\nTarget_tower:{self.target_tower}\naux_tower:{self.aux_tower}\nstart_tower:{self.start_tower},\n"
         for i in range(0, len(self.towers)):
             result = result.__add__(f"Tower {i+1}: {str(self.towers[i])}\n")
 
         return result
 
-    def checkSolved(self) -> bool:
+    def checkSolved(self):
         # objetivo: devuelve True sólo si están todas las piezas ordenadas así: [1,2,3,4,5] en el Target
         current = self.towers[self.target_tower]
         goal = list(range(1, self.discs + 1))
@@ -120,10 +120,10 @@ class HanoiGame:
         # print(goal)
         return f"{current}" == f"{goal}"  # esto es muy cutre pero tira
 
-    def moveFromTo(self, origin: int, target: int) -> bool:
+    def moveFromTo(self, origin: int, target: int):
         disc: int = self.towers[origin].popTopOfTower()
         self.towers[target].placeOnTopOfTower(disc=disc)
-
+    """
     def solveHanoi(self):
         print(
             "Esta es la implementación de la solución tradicional. Uso ilustrativo only."
@@ -156,8 +156,9 @@ class HanoiGame:
             destination_tower=self.target_tower,
             aux_tower=self.aux_tower,
         )
+    """
         
-    def findDisk(self,disk: int,) -> int:
+    def findDisk(self,disk: int,):
         result:int = 0
         
         for i in range(0,len(self.towers)):
@@ -166,7 +167,7 @@ class HanoiGame:
             
         return result
     
-    def findTop(self) -> dict:
+    def findTop(self):
             result: dict = {
                 "tower": 0,
                 "size": 0,
@@ -183,23 +184,45 @@ class HanoiGame:
                     result["size"] = result["size"]+1
                 else:
                     return result
+                
+    def getSolution(self):
+        instructions = []
+        #Primero, si es estandar resolver usando el algoritmo estandar.
+        a = self.findDisk(1)
+        if(self.towers[a].discs == [1,2,3,4,5]):
+            print("Estamos en una estándar")
+            if(a == 0):
+                pass
+            elif(a == 1):
+                self.aux_tower = 0
+                self.start_tower = 1
+            elif(a == 2):
+                self.target_tower = 0
+                self.start_tower = 2
+            instructions = self.getStandardHanoiSolutionArray()
+            self.processSolution(instructions)
+            return instructions
+            
+        else:
+            print("Estamos en una random")
+            instructions = self.getRandomHanoiSolutionArray()
+            
         
-
-    def getRandomHanoiSolutionArray(self) -> list[HanoiMovement]:
+        return instructions
+        
+        
+            
+        
+    
+    def getRandomHanoiSolutionArray(self):
         #print("Utiliza esta función en conjunto con processSolution()")
         instructions: list[HanoiMovement] = []
-        
+
         #Bug: Random solver se rompe si el disco mas grande no comienza en la torre destino.
-        tow = self.findDisk(disk=self.discs)
+        tow = self.findDisk(disk=self.discs)        
         self.target_tower = tow
-        #solucion: reescribir el destino a donde se encuentre el mayor disco.        
-        
-        #Bug: Si está resuelto de base, con 0 movimientos, no hay nada que limpiar:
-        if(self.checkSolved() == True):
-            print("Está resuelto de base")
-            return instructions
-        #solucion: if -> return y un print y que no vuelva a pasar    
-        
+        #solucion: reescribir el destino a donde se encuentre el mayor disco.     
+                
         while self.checkSolved() == False:
             # step 1: find the largest continuous stack starting with 1
             top:dict = self.findTop()
@@ -227,26 +250,49 @@ class HanoiGame:
             
                 # repeat until solved
                 
-        print(f"Steps Before Optimization:{len(instructions)}")  
+        #print(f"Steps Before Optimization:{len(instructions)}")  
 ##
-        def CleanRandomInstructions(instructions: list[HanoiMovement]):   
+        """def OptimizeRandomSolver(instructions: list[HanoiMovement]):
+            result: list[HanoiGame] = instructions
+            for ins in range (1,len(instructions)):
+                if instructions[ins].disc_size == instructions[ins-1].disc_size:
+                    print(f"hay algo en {ins}")
+                else:
+                    pass
+            return result"""
             
+        def CleanRandomInstructions(instructions: list[HanoiMovement]):   
+            print(f"before cleaning = {len(instructions)}")
             result:list[HanoiMovement] = []
             memory: HanoiMovement = instructions[0]
             for ins in range(1,len(instructions)):
                 if instructions[ins].disc_size == memory.disc_size:
+                    print(f"haciendo el cambio en: {ins}")
+                    print(f"memory:     {memory}")
+                    print(f"ins:        {instructions[ins]}")
+                    instructions[ins].source_tower = memory.source_tower
+                    instructions[ins].source_disc_height = memory.source_disc_height
                     memory = instructions[ins]
+                    print(f"new memory {memory}")
                 if instructions[ins].disc_size != memory.disc_size:
                     result.append(memory)
                     memory = instructions[ins]
+            result.append(memory)
+            print(f"after cleaning 1 = {len(result)}")
+            for res in result:
+                if(res.source_tower == res.target_tower):
+                    result.remove(res)
+            print(f"after cleaning 2 = {len(result)}")        
             return result
-##        
-        instructions = CleanRandomInstructions(instructions);      
         
-        print(f"Steps After Optimization:{len(instructions)}")  
+##        
+        """instructions = CleanRandomInstructions(instructions);"""      
+        for i in range(1,8):
+            instructions = CleanRandomInstructions(instructions)
+        #print(f"Steps After Optimization:{len(instructions)}")  
         return instructions
 
-    def getStandardHanoiSolutionArray(self) -> list[HanoiMovement]:
+    def getStandardHanoiSolutionArray(self):
         # print("Utiliza esta función en conjunto con processSolution()")
         def solveHanoiInnerInstructions(
             disc: int,
@@ -301,7 +347,7 @@ class HanoiGame:
         )
         return instructions
 
-    def processSolution(self, solution: list[HanoiMovement]) -> list[HanoiMovement]:
+    def processSolution(self, solution: list[HanoiMovement]):
         for i in solution:
             top_of_source = self.towers[i.source_tower].getTopOfTower()
             i.disc_size = top_of_source["size"]
@@ -312,7 +358,7 @@ class HanoiGame:
             # print(i)
         return solution
 
-    def paintHanoi(self) -> None:
+    def paintHanoi(self):
         result = []
         bar = "_"
         max_radius = self.discs
